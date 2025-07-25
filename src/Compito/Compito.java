@@ -5,31 +5,31 @@ import java.util.concurrent.Semaphore;
 
 class Queue {
     ArrayList<Msg> msgList = new ArrayList<>();
-    Semaphore mutex = new Semaphore(1);     // Protegge l'accesso alla lista
-    Semaphore pieni = new Semaphore(0);     // Conta quanti messaggi ci sono (get può procedere solo se > 0)
-    Semaphore vuoti;                        // Conta quanti slot liberi ci sono (put può procedere solo se ≥ X)
+    Semaphore mutex = new Semaphore(1);
+    Semaphore pieni = new Semaphore(0);
+    Semaphore vuoti;
 
     public Queue(int L) {
-        vuoti = new Semaphore(L);           // Coda limitata: inizialmente tutta vuota
+        vuoti = new Semaphore(L);
     }
 
     public void put(Msg[] msgs) throws InterruptedException {
         int X = msgs.length;
-        vuoti.acquire(X);                   // Attende che ci siano almeno X posti disponibili
+        vuoti.acquire(X);
         mutex.acquire();
         for(Msg msg : msgs) {       // Ciclo for per aggiungere correttamente i messaggi nella coda
             msgList.add(msg);
         }
         mutex.release();
-        pieni.release(X);                   // Segnala che sono presenti X nuovi messaggi
+        pieni.release(X);
     }
 
     public Msg get() throws InterruptedException {
-        pieni.acquire();                    // Attende che ci sia almeno un messaggio
+        pieni.acquire();
         mutex.acquire();
-        Msg m = msgList.remove(0);          // Rimuove il primo (FIFO)
+        Msg m = msgList.remove(0);      // Rimuove il primo (FIFO)
         mutex.release();
-        vuoti.release();                    // Libera un posto nella coda
+        vuoti.release();
         return m;
     }
 }

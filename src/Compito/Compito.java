@@ -89,12 +89,20 @@ class ClientThread extends Thread {
                 risposta.acquire(X);                    // Attende che tutti i risultati arrivino
                 long t1 = System.currentTimeMillis();   // Fine misurazione tempo
 
-                StringBuilder sb = new StringBuilder(getName() + " -> Risultati: ");        // Stampa risultati
+                String s = getName() + " -> Risultati: ";
+                for (Msg m : msgs) {
+                    s += "[" + m.result + "] ";
+                }
+                s += "tempo=" + (t1 - t0) + "ms";
+                System.out.println(s);
+                /*      // Alternativa più efficiente se X fosse molto grande (uso di StringBuilder)
+                StringBuilder sb = new StringBuilder(getName() + " -> Risultati: ");
                 for (Msg m : msgs) {
                     sb.append("[").append(m.result).append("] ");
                 }
                 sb.append("tempo=").append((t1 - t0)).append("ms");
                 System.out.println(sb.toString());
+                */
 
                 nOp++;      // Aggiornamento statistiche
                 totalTime += (t1 - t0);
@@ -138,15 +146,15 @@ class WorkerThread extends Thread {
 
 public class Compito {
     public static void main(String[] args) throws InterruptedException {
-        int N = 4;
-        int M = 3;
+        int N = 5;
+        int M = 8;
         int K = 4;
         int X = 3;
         int TG = 100;
-        int DG = 200;
+        int DG = 100;
         int TW = 100;
-        int DW = 300;
-        int L = 20;
+        int DW = 100;
+        int L = 50;
 
         Queue queue = new Queue(L);
 
@@ -182,18 +190,18 @@ public class Compito {
         int totalOp = 0;
         long totalTime = 0;
         for (ClientThread ct : clients) {
-            System.out.println(ct.getName() + ": op=" + ct.nOp + ", tempoMedio=" +
+            System.out.println(ct.getName() + ": numOp=" + ct.nOp + ", tempoMedio=" +
                     (ct.nOp > 0 ? (ct.totalTime / ct.nOp) : 0) + "ms");
             totalOp += ct.nOp;
             totalTime += ct.totalTime;
         }
 
         for (WorkerThread wt : workers) {
-            System.out.println(wt.getName() + ": op=" + wt.nOp);
+            System.out.println(wt.getName() + ": numOp=" + wt.nOp);
         }
 
-        System.out.println("Totale operazioni Client: " + totalOp);
+        /*System.out.println("Totale operazioni Client: " + totalOp);
         System.out.println("Tempo medio complessivo: " +
-                (totalOp > 0 ? (totalTime / totalOp) : 0) + "ms");
+                (totalOp > 0 ? (totalTime / totalOp) : 0) + "ms");*/
     }
 }
